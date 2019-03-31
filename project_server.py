@@ -1,7 +1,7 @@
 import socket
 import threading
-import Queue  # renamed to queue in 3.7
-
+import queue  # renamed to queue in 3.7
+import game
 """SERVER CODE"""
 # TODO: stop-and-wait, pipelining, flow and congestion control
 # TODO: quiz game code
@@ -20,7 +20,7 @@ def run_server():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, port))
     clients = set()
-    recv_packets = Queue.Queue()
+    recv_packets = queue.Queue()
 
     print('Server Running...')
 
@@ -31,7 +31,7 @@ def run_server():
             if addr not in clients:
                 clients.add(addr)
                 continue
-            clients.add(addr)
+            # clients.add(addr)
             data = data.encode('utf-8')
             if data.endswith('qqq'):
                 clients.remove(addr)

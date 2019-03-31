@@ -14,7 +14,6 @@ def receive_data(sock):
         except:
             pass
 
-
 def run_client(server_ip):
     host = socket.gethostbyname(socket.gethostname())
     port = random.randint(6000, 10000)
@@ -23,14 +22,14 @@ def run_client(server_ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, port))
 
-    name = raw_input('Enter username: ')
+    name = input('Enter username: ')
     if name == '':
         name = 'Guest' + str(random.randint(1000, 9999))
     print('Your name is: ' + '[' + name + ']')
     s.sendto(name.encode('utf-8'), server)
     threading.Thread(target=receive_data, args=(s,)).start()
     while True:
-        data = raw_input()
+        data = input()
         if data == 'qqq':
             break
         elif data == '':
@@ -42,4 +41,7 @@ def run_client(server_ip):
 
 
 if __name__ == '__main__':
-    run_client("10.100.201.46")
+    run_client("192.168.100.3")
+
+
+# 10.100.201.46

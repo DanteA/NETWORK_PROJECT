@@ -39,13 +39,13 @@ def checkinput(input, number):
 
 
 # asks for the number of the question you want to ask. Returns the question in string format.
-def getquestion(number):
-    return questions.get(number, "IndexOutOfBounds from getquestion()")
-
-
-def getquestionset(number):
-    question = getquestion(number)
-    return {question, answers.get(number, "IndexOutOfBounds from getquestionset()")}
+# def getquestion(number):
+#     return questions.get(number, "IndexOutOfBounds from getquestion()")
+#
+#
+# def getquestionset(number):
+#     question = getquestion(number)
+#     return {question, answers.get(number, "IndexOutOfBounds from getquestionset()")}
 
 
 def recv_data(sock, recv_packets):
@@ -67,7 +67,7 @@ def run_server():
 
     player_names = []
     scores = []
-    max_players = 2
+    max_players = 3
 
     threading.Thread(target=recv_data, args=(s, recv_packets)).start()
     # WAIT FOR PLAYERS
@@ -85,8 +85,6 @@ def run_server():
         s.sendto("Game Start", c)
 
     # GAME PROPER
-    # TODO: give next question only when everyone has answered
-    # TODO:
     for q in questions:
         answers_submitted = []
         # SEND QUESTIONS
@@ -98,6 +96,19 @@ def run_server():
             answers_submitted.append(str(data)[-1])  # remove player name from submitted answer
         print("Submitted Answers: {}".format(answers_submitted))
         # AWARD POINTS
+        for a in range(0, len(answers_submitted)):
+            print a
+            if checkinput(answers_submitted[a], q):
+                scores[a] += 1
+            print("Total Points: {}".format(scores))
+
+    # ANNOUNCE WINNER
+    for c in clients:
+        s.sendto("Total Points: {}".format(scores), c)  # announce results to all clients
+        for i in range(0, len(scores)):
+            if scores[i] == max(scores):
+                s.sendto("WINNER: " + str(player_names[i]) + " - " + str(max(scores)) + "pts", c)
+        s.sendto("Game Over. Thanks for playing!", c)
 
     s.close()
 

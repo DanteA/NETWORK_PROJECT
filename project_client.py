@@ -4,13 +4,18 @@ import random
 import os
 
 """CLIENT CODE"""
+thread_shutdown = threading.Event()
 
 
 def receive_data(sock):
-    while True:
+    ongoing = True
+    while ongoing:
         try:
             data, addr = sock.recvfrom(1024)
             print(str(data))
+            if data == "Game Over. Thanks for playing!":
+                thread_shutdown.set()
+                ongoing = False  # stop receiving data because game has ended
         except:
             pass
 
@@ -30,7 +35,8 @@ def run_client(server_ip):
     s.sendto(str(name), server)
     # GET PLAYER ANSWER
     threading.Thread(target=receive_data, args=(s,)).start()
-    while True:
+    ongoing = True
+    while ongoing:
         data = raw_input()
         if data != '':  # do not allow blank answers
             data = '[' + name + ']' + '->' + data

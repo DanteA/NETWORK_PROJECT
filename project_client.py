@@ -41,4 +41,4 @@ def run_client(server_ip):
 
 
 if __name__ == '__main__':
-    run_client("10.100.199.49")
+    run_client("192.168.1.2")

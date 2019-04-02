@@ -1,6 +1,7 @@
 import socket
 import threading
 import Queue  # renamed to queue in 3
+import select
 # import game
 
 """SERVER CODE"""
@@ -28,7 +29,7 @@ answers = {
     }
 
 
-# checks if the input char is equivalent to the expected answer.
+# RETURNS BOOLEAN checks if the input char is equivalent to the expected answer.
 def checkinput(input, number):
     answerconvert = answers.get(number, 'IndexOutOfBounds from checkinput()')
     if input == answerconvert:
@@ -60,7 +61,7 @@ def run_server():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, port))
     clients = set()
-    recv_packets = Queue.Queue()
+    recv_packets = Queue.Queue()  # connection's queue for data
 
     print('Server Running...')
 
@@ -74,7 +75,7 @@ def run_server():
         data, addr = recv_packets.get()
         if addr not in clients:
             clients.add(addr)
-            player_names.extend(str(data))  # list player names
+            player_names.append(str(data))  # list player names
             scores.append(0)
             print("Player List {}".format(player_names))
 
@@ -83,19 +84,21 @@ def run_server():
     for c in clients:
         s.sendto("Game Start", c)
 
-    # ASK QUESTIONS
+    # GAME PROPER
+    # TODO: give next question only when everyone has answered
+    # TODO:
     for q in questions:
+        answers_submitted = []
+        # SEND QUESTIONS
         for c in clients:
-            s.sendto(questions[q], c)
-
-    while True:
-        while not recv_packets.empty():
+            s.sendto(str(questions[q]), c)  # send question to all clients
+        # RECEIVE ANSWERS
+        for c in clients:
             data, addr = recv_packets.get()
-            data = str(data)  # get message sent by client
-            print(str(addr) + data)  # display sender + message in server
-            for c in clients:
-                if c != addr:
-                    s.sendto(str(data), c)
+            answers_submitted.append(str(data)[-1])  # remove player name from submitted answer
+        print("Submitted Answers: {}".format(answers_submitted))
+        # AWARD POINTS
+
     s.close()
 
 

@@ -1,8 +1,6 @@
 import socket
 import threading
 import Queue  # renamed to queue in 3
-import select
-# import game
 
 """SERVER CODE"""
 # TODO: stop-and-wait, pipelining, flow and congestion control
@@ -36,16 +34,6 @@ def checkinput(input, number):
         return True
     else:
         return False
-
-
-# asks for the number of the question you want to ask. Returns the question in string format.
-# def getquestion(number):
-#     return questions.get(number, "IndexOutOfBounds from getquestion()")
-#
-#
-# def getquestionset(number):
-#     question = getquestion(number)
-#     return {question, answers.get(number, "IndexOutOfBounds from getquestionset()")}
 
 
 def recv_data(sock, recv_packets):

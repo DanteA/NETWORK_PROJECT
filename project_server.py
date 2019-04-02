@@ -25,22 +25,21 @@ def run_server():
 
     print('Server Running...')
 
+    player_names = []
+
     threading.Thread(target=recv_data, args=(s, recv_packets)).start()
     while True:
         while not recv_packets.empty():
             data, addr = recv_packets.get()
             if addr not in clients:
                 clients.add(addr)
-                continue
-            clients.add(addr)
-            data = data.encode('utf-8')
-            if data.endswith('qqq'):
-                clients.remove(addr)
-                continue
-            print(str(addr) + data)
+                player_names.extend(str(data))  # list player names
+                print("Player List {}".format(player_names))
+            data = str(data)  # get message sent by client
+            print(str(addr) + data)  # display sender + message in server
             for c in clients:
                 if c != addr:
-                    s.sendto(data.encode('utf-8'), c)
+                    s.sendto(str(data), c)
     s.close()
 
 

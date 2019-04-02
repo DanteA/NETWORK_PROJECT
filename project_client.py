@@ -28,19 +28,17 @@ def run_client(server_ip):
         name = 'Guest' + str(random.randint(1000, 9999))
     print('Your name is: ' + '[' + name + ']')
     s.sendto(name.encode('utf-8'), server)
+
     threading.Thread(target=receive_data, args=(s,)).start()
     while True:
-        data = raw_input()
-        if data == 'qqq':
-            break
-        elif data == '':
-            continue
-        data = '[' + name + ']' + '->' + data
-        s.sendto(data.encode('utf-8'), server)
+        data = raw_input("> ")
+        if data != '':  # do not allow blank answers
+            data = '[' + name + ']' + '->' + data
+            s.sendto(data.encode('utf-8'), server)
+
     s.close()
-    print("Server Shutdown...")
     os._exit(1)
 
 
 if __name__ == '__main__':
-    run_client("192.168.1.2")
+    run_client("10.100.199.49")

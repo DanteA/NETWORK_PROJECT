@@ -1,11 +1,50 @@
 import socket
 import threading
 import Queue  # renamed to queue in 3
-import game
+# import game
 
 """SERVER CODE"""
 # TODO: stop-and-wait, pipelining, flow and congestion control
-# TODO: quiz game code
+questions = {
+        1: "Which protocol sends its data in reliable, in-order manner? "
+           "\n A. UDP \n B. TCP \n C. HTTP \n D. IP",
+        2: "What OSI Model layer is responsible for breaking the data down into segments? "
+           "\n A. Transport Layer \n B. Network Layer \n C. Link Layer \n D. Physical Layer",
+        3: "What do you call the electromagnetic interference of one wire to another? "
+           "\n A. EMI \n B. RFI \n C. Crosstalk \n D. Static",
+        4: "What field is used to indicate how long a packet has until it is discarded by the network? "
+           "\n A. Protocol \n B. TTL \n C. DS \n D. System clock",
+        5: "How many bits does an IPv6 IP Address contain? "
+           "\n A. 64 \n B. 32 \n C. 256 \n D. 128"
+
+    }
+
+answers = {
+        1: "B",
+        2: "A",
+        3: "C",
+        4: "B",
+        5: "D"
+    }
+
+
+# checks if the input char is equivalent to the expected answer.
+def checkinput(input, number):
+    answerconvert = answers.get(number, 'IndexOutOfBounds from checkinput()')
+    if input == answerconvert:
+        return True
+    else:
+        return False
+
+
+# asks for the number of the question you want to ask. Returns the question in string format.
+def getquestion(number):
+    return questions.get(number, "IndexOutOfBounds from getquestion()")
+
+
+def getquestionset(number):
+    question = getquestion(number)
+    return {question, answers.get(number, "IndexOutOfBounds from getquestionset()")}
 
 
 def recv_data(sock, recv_packets):
@@ -26,15 +65,32 @@ def run_server():
     print('Server Running...')
 
     player_names = []
+    scores = []
+    max_players = 2
 
     threading.Thread(target=recv_data, args=(s, recv_packets)).start()
+    # WAIT FOR PLAYERS
+    while len(clients) < max_players:
+        data, addr = recv_packets.get()
+        if addr not in clients:
+            clients.add(addr)
+            player_names.extend(str(data))  # list player names
+            scores.append(0)
+            print("Player List {}".format(player_names))
+
+    # ANNOUNCE GAME START
+    print("Game Start")
+    for c in clients:
+        s.sendto("Game Start", c)
+
+    # ASK QUESTIONS
+    for q in questions:
+        for c in clients:
+            s.sendto(questions[q], c)
+
     while True:
         while not recv_packets.empty():
             data, addr = recv_packets.get()
-            if addr not in clients:
-                clients.add(addr)
-                player_names.extend(str(data))  # list player names
-                print("Player List {}".format(player_names))
             data = str(data)  # get message sent by client
             print(str(addr) + data)  # display sender + message in server
             for c in clients:
